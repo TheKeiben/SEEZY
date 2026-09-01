@@ -65,7 +65,7 @@ sudo apt update && sudo apt install espeak
 python3 -m venv venv
 source venv/bin/activate
 pip install -r software/requirements.txt
-
+```
 ---
 
 ## 🎮 Execution & Controls

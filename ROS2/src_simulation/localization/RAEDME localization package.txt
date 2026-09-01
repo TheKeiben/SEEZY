@@ -1,0 +1,30 @@
+# SEEZY Robot - Localization Package
+
+## Overview
+This package is responsible for estimating the SEEZY robot's pose (position and orientation) within a known map. It utilizes the Nav2 AMCL (Adaptive Monte Carlo Localization) algorithm and the Nav2 Map Server to align the physical LiDAR scans with the saved static map.
+
+---
+
+## 🛠️ Configuration and Tuning Guide
+
+If your robot thinks it's in a different location than it actually is, or if the LiDAR scans (red dots in RViz) don't align perfectly with the map walls, here is where you make manual adjustments:
+
+* **Changing the Active Map**
+  * *File:* `launch/localization.launch.py`
+  * *What to change:* Update the `default_value` of the `"map_name"` argument (e.g., from `"supermarket.yaml"` to your new map file). Make sure the map file is located in the `navigation/maps` directory.
+
+* **Fixing Robot Drift / Slipping (Odometry Noise)**
+  * *File:* `config/amcl.yaml`
+  * *What to change:* If the robot's wheels slip in reality and it loses its location, increase the `alpha1`, `alpha2`, `alpha3`, and `alpha4` values (e.g., from `0.2` to `0.4` or `0.5`). This tells the algorithm to trust the wheels less and trust the LiDAR scans more.
+
+* **Adjusting Update Frequency**
+  * *File:* `config/amcl.yaml`
+  * *What to change:* Modify `update_min_d` (meters) and `update_min_a` (radians). Lowering these values (e.g., `update_min_d: 0.1`) forces the robot to recalculate its position more often, which is useful in tight spaces.
+
+* **Recovering a "Lost" Robot**
+  * *File:* `config/amcl.yaml`
+  * *What to change:* Increase `max_particles` (e.g., from `2000` to `4000`). More particles require more CPU power but give the algorithm more "guesses" to figure out where the robot is on a large map.
+
+* **Matching LiDAR Physical Range**
+  * *File:* `config/amcl.yaml`
+  * *What to change:* Make sure `laser_max_range` matches the actual physical limits of your LiDAR (or the simulated limits in your URDF, e.g., `12.0` meters instead of `100.0`). This prevents the algorithm from relying on phantom reflections.

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+
+  <!-- ========================================== -->
+  <!-- 1. Package Identification                  -->
+  <!-- ========================================== -->
+  <name>localization</name>
+  <version>0.0.0</version>
+  <description>ROS 2 Code Examples</description>
+  <maintainer email="SEEZY@gmail.com">SEEZY</maintainer>
+  <license>Apache 2.0</license>
+
+  <!-- ========================================== -->
+  <!-- 2. Build Tools (Mixed Package)             -->
+  <!-- ========================================== -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <!-- ========================================== -->
+  <!-- 3. Execution Dependencies                  -->
+  <!-- ========================================== -->
+  <exec_depend>nav2_amcl</exec_depend>
+  <exec_depend>nav2_map_server</exec_depend>
+  <exec_depend>nav2_lifecycle_manager</exec_depend>
+  <exec_depend>tf_transformations</exec_depend>
+
+  <!-- ========================================== -->
+  <!-- 4. Testing Dependencies                    -->
+  <!-- ========================================== -->
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <!-- ========================================== -->
+  <!-- 5. Export Rules                            -->
+  <!-- ========================================== -->
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,70 @@
+<root BTCPP_format="4" main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    
+    <!-- ========================================== -->
+    <!-- 1. MAIN MISSION SEQUENCE                   -->
+    <!-- ========================================== -->
+    <Sequence name="MainMissionSequence">
+      <ClearEntireCostmap name="ClearGlobalCostmap-AtStart" service_name="global_costmap/clear_entirely_global_costmap"/>
+      
+      <!-- Fallback: Try to navigate, if everything fails -> TotalFailureAndHalt -->
+      <Fallback name="NavigationOrFailureFallback">
+        
+        <!-- ========================================== -->
+        <!-- 2. NAVIGATION PIPELINE                     -->
+        <!-- ========================================== -->
+        <RecoveryNode number_of_retries="1" name="NavigateRecovery">
+          <PipelineSequence name="NavigateWithReplanning">
+            <ControllerSelector selected_controller="{selected_controller}" default_controller="FollowPath" topic_name="controller_selector"/>
+            <PlannerSelector selected_planner="{selected_planner}" default_planner="GridBased" topic_name="planner_selector"/>
+            
+            <!-- Re-compute the global path every 1.0 seconds -->
+            <RateController hz="1.0">
+              <ComputePathToPose goal="{goal}" path="{path}" planner_id="{selected_planner}" error_code_id="{compute_path_error_code}"/>
+            </RateController>
+            
+            <!-- ========================================== -->
+            <!-- 3. REACTIVE OBSTACLE AVOIDANCE             -->
+            <!-- ========================================== -->
+            <RecoveryNode number_of_retries="1" name="ReactiveObstacleAvoidance">
+              <FollowPath path="{path}" controller_id="{selected_controller}" error_code_id="{follow_path_error_code}"/>
+              
+              <!-- Normal state: Follow the path -->
+              <Fallback name="ExtractionAttemptsFallback">
+                
+                <!-- Attempt 1: Wait to see if obstacle moves, clear map, replan -->
+                <Sequence name="FirstExtractionTry">
+                  <Wait wait_duration="5.0"/>
+                  <ClearEntireCostmap name="ClearLocalCostmap-FirstTry" service_name="local_costmap/clear_entirely_local_costmap"/>
+                  <ComputePathToPose goal="{goal}" path="{path}" planner_id="{selected_planner}" error_code_id="{compute_path_error_code}"/>
+                </Sequence>
+                
+                <!-- Attempt 2: Spin to clear blind spots, clear map, replan -->
+                <Sequence name="SecondExtractionTry">
+                  <Spin spin_dist="3.14" error_code_id="{spin_error_code}"/>
+                  <ClearEntireCostmap name="ClearLocalCostmap-SecondTry" service_name="local_costmap/clear_entirely_local_costmap"/>
+                  <ComputePathToPose goal="{goal}" path="{path}" planner_id="{selected_planner}" error_code_id="{compute_path_error_code}"/>
+                </Sequence>
+                
+              </Fallback>
+            </RecoveryNode>
+          </PipelineSequence>
+
+          <!-- Delay before retrying the entire navigation pipeline -->
+          <Sequence name="RetryDelay">
+            <Wait wait_duration="1.0"/>
+          </Sequence>
+        </RecoveryNode>
+
+        <!-- ========================================== -->
+        <!-- 4. TOTAL FAILURE STATE                     -->
+        <!-- ========================================== -->
+        <Sequence name="TotalFailureAndHalt">
+          <ClearEntireCostmap name="ClearGlobalCostmap-Final" service_name="global_costmap/clear_entirely_global_costmap"/>
+          <AlwaysFailure/>
+        </Sequence>
+      </Fallback>
+      
+    </Sequence>
+  </BehaviorTree>
+</root>

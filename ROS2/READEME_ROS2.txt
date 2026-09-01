@@ -1,0 +1,97 @@
+=============================================================================
+SEEZY PROJECT - MASTER ROS 2 WORKSPACE SETUP & EXECUTION GUIDE
+=============================================================================
+
+Welcome to the SEEZY Robot ROS 2 Workspace. This guide provides step-by-step 
+instructions for setting up the environment on a completely new computer, 
+compiling the code, and running the robot in both simulation and physical modes.
+
+-----------------------------------------------------------------------------
+1. PREREQUISITES & INSTALLATION (NEW COMPUTER SETUP)
+-----------------------------------------------------------------------------
+Before running the workspace, ensure your computer has the following installed:
+
+# Update your package list to ensure you get the latest software versions
+sudo apt update
+
+# Install Ubuntu 24.04 OS, then install the ROS 2 Jazzy Desktop environment
+# (Follow the official ROS 2 Jazzy installation guide for the full setup)
+sudo apt install ros-jazzy-desktop
+
+# Install the Python build tools required to compile ROS 2 workspaces
+sudo apt install python3-colcon-common-extensions
+
+-----------------------------------------------------------------------------
+2. WORKSPACE CREATION & COMPILATION
+-----------------------------------------------------------------------------
+Follow these steps to download the packages and build the system.
+
+# Create the workspace directory structure
+mkdir -p ~/SEEZY_WORKSPACE/src
+
+# Navigate into the source directory
+cd ~/SEEZY_WORKSPACE/src
+
+# (At this point, copy all your project folders: bringup, controller, 
+# description, localization, mapping, navigation into this 'src' directory)
+
+# Navigate back to the root of the workspace
+cd ~/SEEZY_WORKSPACE
+
+# Update the local database of available ROS 2 packages from the internet
+rosdep update
+
+# Automatically scan the 'src' folder and install all missing ROS 2 libraries (e.g., Nav2, SLAM)
+rosdep install --from-paths src --ignore-src -r -y
+
+# Compile the entire workspace and create symlinks for easy python editing
+colcon build --symlink-install
+
+# Source the newly built workspace so the system recognizes your packages
+source install/setup.bash
+
+-----------------------------------------------------------------------------
+3. PACKAGE ARCHITECTURE & PARAMETER TUNING GUIDE
+-----------------------------------------------------------------------------
+If you need to change physical dimensions, speeds, or map settings, 
+refer to this section to find exactly which file to edit.
+
+[1] bringup:
+The orchestration package containing the master launch files.
+
+[2] controller:
+Manages hardware interfaces and kinematic limits.
+
+[3] description:
+Contains the 3D models (URDF) and Gazebo simulation environments.
+
+[4] mapping:
+Handles SLAM to create new 2D maps.
+
+[5] localization:
+Uses AMCL to find the robot's location on an existing map.
+
+[6] navigation:
+The Nav2 stack for obstacle avoidance and path planning.
+
+-----------------------------------------------------------------------------
+4. QUICK START: MASTER LAUNCH COMMANDS
+-----------------------------------------------------------------------------
+Use ONLY the master launch files in the 'bringup' package to run the system. 
+Do not launch individual components separately for standard operation.
+
+--- A. SIMULATION MODE (Gazebo) ---
+
+# Launch the full simulation with SLAM to create a NEW map
+ros2 launch bringup seezy_test_sim_slam.py
+
+# Launch the full simulation with Nav2 to navigate on an EXISTING map
+ros2 launch bringup seezy_test_sim.py
+
+--- B. PHYSICAL ROBOT MODE (Real Hardware) ---
+
+# Launch the physical robot with SLAM to create a NEW map (Simulation time disabled)
+ros2 launch bringup seezy_test_real_salm.py use_sim_time:=false
+
+# Launch the physical robot with Nav2 to navigate on an EXISTING map (Simulation time disabled)
+ros2 launch bringup seezy_test_real.py use_sim_time:=false

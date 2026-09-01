@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <!-- ========================================== -->
+  <!-- 1. Package Identification                  -->
+  <!-- ========================================== -->
+  <name>bringup</name>
+  <version>0.0.0</version>
+  <description>bringup package</description>
+  <maintainer email="SEEZY@gmail.com">SEEZY</maintainer>
+  <license>Apache 2.0</license>
+
+  <!-- ========================================== -->
+  <!-- 2. Build Tool Dependencies                 -->
+  <!-- ========================================== -->
+  <!-- Required to build the package using CMake -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- ========================================== -->
+  <!-- 3. Execution Dependencies                  -->
+  <!-- ========================================== -->
+  <!-- Other packages within this project that are launched by this bringup package -->
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>controller</exec_depend>
+  <exec_depend>description</exec_depend>
+  <exec_depend>localization</exec_depend>
+  <exec_depend>mapping</exec_depend>
+
+  <!-- ========================================== -->
+  <!-- 4. Test Dependencies                       -->
+  <!-- ========================================== -->
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <!-- ========================================== -->
+  <!-- 5. Export Rules                            -->
+  <!-- ========================================== -->
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

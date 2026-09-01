@@ -1,0 +1,35 @@
+# Supermarket Map Coordinates for SEEZY
+# Units: meters (x, y), radians (yaw/theta)
+
+locations:
+  0:
+    name: "milk_3p_tnuva"
+    x: 2.20
+    y: -0.80
+    theta: 0.0
+  1:
+    name: "ketchup_heinz"
+    x: -1.00
+    y: 1.00
+    theta: 1.57
+  2:
+    name: "bamba_osem"
+    x: -2.00
+    y: 0.60
+    theta: 4.71
+  3:
+    name: "cafe_names_elit"
+    x: -3.00
+    y: -2.10
+    theta: 4.20
+  4:
+    name: "toothpaste_colgate"
+    x: -3.00
+    y: -2.40
+    theta: 3.14
+
+checkout:
+  name: "checkout_counter"
+  x: -1.28
+  y: -1.63
+  theta: 0.0

@@ -1,0 +1,83 @@
+# ==========================================================
+# Controller Manager Configuration
+# Acts as the main loop for the Gazebo simulation environment.
+# Registers and manages the active controllers at 100Hz.
+# ==========================================================
+controller_manager:
+  ros__parameters:
+    update_rate: 100 # Hz
+
+    # Differential drive controller for base navigation
+    controller:
+      type: diff_drive_controller/DiffDriveController
+
+    # Publishes the wheel joint states to /joint_states
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+
+# ==========================================================
+# Differential Drive Controller Configuration
+# ==========================================================
+controller:
+  ros__parameters:
+    # ------------------------------------------------------
+    # 1. Basic Settings & Joint Mapping
+    # ------------------------------------------------------
+    type        : diff_drive_controller/DiffDriveController
+    
+    # NOTE: The system backend enforces the use of timestamped 
+    # velocity commands (geometry_msgs/TwistStamped).
+    # use_stamped_vel: false
+    left_wheel_names  : ['wheel_left_joint']
+    right_wheel_names : ['wheel_right_joint']
+
+    # ------------------------------------------------------
+    # 2. Odometry & Covariance
+    # ------------------------------------------------------
+    publish_rate: 50.0              # Hz
+    pose_covariance_diagonal : [0.001, 0.001, 1.0e-3, 1.0e-3, 1.0e-3, 0.01]
+    twist_covariance_diagonal: [0.001, 0.001, 1.0e-3, 1.0e-3, 1.0e-3, 0.01]
+
+    # Robot physical parameters (meters)
+    wheel_separation : 0.365
+    wheel_radius : 0.0975
+
+    # Multipliers for fine-tuning physical imperfections (kept at 1.0 for sim)
+    wheel_separation_multiplier: 1.0
+    left_wheel_radius_multiplier: 1.0
+    right_wheel_radius_multiplier: 1.0
+
+# ------------------------------------------------------
+    # 3. Safety, Frames, and TF Configuration
+    # ------------------------------------------------------
+    cmd_vel_timeout: 0.5 # Stop if no commands received for 0.5s
+    base_frame_id: base_footprint #Base frame of the robot. default: base_link
+    publish_limited_velocity: true # Publish actual commanded velocity
+    publish_wheel_data: true # Publish wheel data to TF
+    enable_odom_tf: true # Automatically publish odom -> base_footprint TF
+
+# ------------------------------------------------------
+    # 4. Kinematic Limits
+    # ------------------------------------------------------
+    # Whenever a min_* is unspecified, default to -max_*
+    linear:
+      x:
+        has_velocity_limits    : true
+        max_velocity           : 0.7  # m/s
+        min_velocity           : -0.7 # m/s
+        has_acceleration_limits: true
+        max_acceleration       : 0.7  # m/s^2
+        min_acceleration       : -0.7 # m/s^2
+        has_jerk_limits        : false
+        max_jerk               : 5.0  # m/s^3
+    angular:
+      z:
+        has_velocity_limits    : true
+        max_velocity           : 8.5  # rad/s
+        min_velocity           : -8.5  # rad/s
+        has_acceleration_limits: true
+        max_acceleration       : 5.0  # rad/s^2
+        min_acceleration       : -5.0   # rad/s^2
+        has_jerk_limits        : false
+        max_jerk               : 2.5  # rad/s^3

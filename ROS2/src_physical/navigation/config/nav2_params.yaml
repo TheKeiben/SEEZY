@@ -1,0 +1,216 @@
+# ==========================================================
+# 1. Behavior Tree Navigator
+# ==========================================================
+bt_navigator:
+  ros__parameters:
+    use_sim_time: False
+    global_frame: map
+    robot_base_frame: base_footprint
+    odom_frame: odom
+    bt_loop_duration: 10
+    default_server_timeout: 5000
+    default_cancel_timeout: 20
+    server_timeout: 20000 
+    action_server_result_timeout: 900.0
+    always_reload_bt_xml: True #----------------------------------
+    goal_blackboard_id: goal
+    error_code_names: ["follow_path_error_code", "compute_path_error_code"]
+    navigators: ["navigate_to_pose"]
+    default_nav_to_pose_bt_xml: "navigate_to_pose_w_replanning_and_recovery.xml"
+    navigate_to_pose:
+      plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
+
+# ==========================================================
+# 2. Behavior Server (Recovery Behaviors)
+# ==========================================================
+behavior_server:
+  ros__parameters:
+    use_sim_time: False
+    enable_stamped_cmd_vel: True #--------------------------------
+    costmap_topic: "local_costmap/costmap_raw"
+    footprint_topic: "local_costmap/published_footprint"
+    cycle_frequency: 10.0
+    behavior_plugins: ["spin", "backup", "drive_on_heading", "wait"]
+    global_frame: odom
+    robot_base_frame: base_footprint
+    transform_timeout: 0.1
+    simulate_ahead_time: 2.0
+    spin:
+      plugin: "nav2_behaviors::Spin"
+      max_rotational_vel: 0.3
+      min_rotational_vel: 0.2
+      rotational_accel: 0.5
+    backup:
+      plugin: "nav2_behaviors::BackUp"
+      backup_dist: 0.25
+      speed: 0.10
+    drive_on_heading:
+      plugin: "nav2_behaviors::DriveOnHeading"
+    wait:
+      plugin: "nav2_behaviors::Wait"      
+
+# ==========================================================
+# 3. Controller Server (Path Following)
+# ==========================================================
+controller_server:
+  ros__parameters:
+    use_sim_time: False
+    controller_frequency: 10.0
+    failure_tolerance: 2.0
+    costmap_update_timeout: 0.5
+    enable_stamped_cmd_vel: True #-------------------------------------------------
+    bond_heartbeat_period: 0.1
+    patience: 0.0
+    progress_checker_plugins: ["progress_checker"]
+    goal_checker_plugins: ["general_goal_checker"]
+    controller_plugins: ["FollowPath"]
+
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.05
+      movement_time_allowance: 10.0
+
+    general_goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      stateful: True
+      xy_goal_tolerance: 0.10
+      yaw_goal_tolerance: 0.5
+      symmetric_yaw_tolerance: False
+
+    FollowPath:
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      desired_linear_vel: 0.30
+      min_approach_linear_velocity: 0.05
+      lookahead_dist: 0.40
+      min_lookahead_dist: 0.5
+      max_lookahead_dist: 1.20
+      lookahead_time: 1.5
+      use_velocity_scaled_lookahead: True
+      rotate_to_heading_angular_vel: 0.3
+      rotate_to_heading_min_angle: 2.094
+      use_rotate_to_heading: True
+      allow_reversing: False
+      max_linear_accel: 0.3
+      max_linear_decel: 0.4
+      max_angular_accel: 0.5
+      max_angular_decel: 0.5
+      use_regulated_linear_velocity_scaling: True
+      regulated_linear_scaling_min_radius: 0.9
+      regulated_linear_scaling_min_speed: 0.25
+      use_cost_regulated_linear_velocity_scaling: True
+      cost_scaling_dist: 0.6
+      cost_scaling_gain: 1.0
+      inflation_cost_scaling_factor: 3.0
+      use_fixed_curvature_lookahead: False
+      curvature_lookahead_dist: 0.6
+      use_collision_detection: True
+      max_allowed_time_to_collision_up_to_carrot: 1.0
+      use_cancel_deceleration: False
+      cancel_deceleration: 3.2
+      stateful: True
+      transform_tolerance: 0.1
+      max_robot_pose_search_dist: 1.4875
+      interpolate_curvature_after_goal: False
+      approach_velocity_scaling_dist: 0.6
+
+# ==========================================================
+# 4. Planner Server (Global Path Planning)
+# ==========================================================
+planner_server:
+  ros__parameters:
+    use_sim_time: False
+    expected_planner_frequency: 1.0
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_smac_planner::SmacPlanner2D"
+      tolerance: 0.5
+      allow_unknown: True
+      max_iterations: 1000000
+      max_planning_time: 2.0
+      cost_travel_multiplier: 1.0
+      downsample_costmap: False
+      downsampling_factor: 1
+      use_final_approach_orientation: False
+      smoother:
+        do_refinement: True
+        max_iterations: 3000
+        refinement_num: 2
+        tolerance: 1.0e-10
+        w_data: 0.1
+        w_smooth: 0.4
+    action_server_result_timeout: 10.0
+    autostart_node: False
+    bond_heartbeat_period: 0.1
+    costmap_update_timeout: 1.0
+    start_type_description_service: True      
+
+
+map_server:
+ ros__parameters:
+    use_sim_time: True
+    yaml_filename: "pinsker1.yaml"
+
+# ==========================================================
+# 5. Local Costmap
+# ==========================================================
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_footprint
+      use_sim_time: False
+      rolling_window: True
+      width: 3
+      height: 3
+      resolution: 0.05
+      footprint: "[ [0.225, 0.19], [0.225, -0.19], [-0.225, -0.19], [-0.225, 0.19] ]"
+      plugins: ["obstacle_layer", "inflation_layer"]
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 5.0
+        inflation_radius: 0.5 
+
+# ==========================================================
+# 6. Global Costmap
+# ==========================================================
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 1.0
+      publish_frequency: 1.0
+      global_frame: map
+      robot_base_frame: base_footprint
+      use_sim_time: False
+      footprint: "[ [0.225, 0.19], [0.225, -0.19], [-0.225, -0.19], [-0.225, 0.19] ]"
+      resolution: 0.05
+      track_unknown_space: True
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 5.0
+        inflation_radius: 0.5 

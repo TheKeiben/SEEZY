@@ -7,7 +7,7 @@
 
 
 ## 🛒 Project Overview
-**SEEZY** is an autonomous supermarket assistant robot designed to guide visually impaired customers. It navigates to requested items, detects them using a custom YOLOv8 model (trained on 5 specific classes: milk, ketchup, bamba, coffee, toothpaste), and safely guides the user to the checkout counter.
+**SEEZY** is an autonomous supermarket assistant robot designed to guide visually impaired customers. It navigates to requested items, detects them using a custom YOLOv8 model (trained on 5 specific classes: milk, ketchup, bamba, coffee, toothpaste), and safely guides the user to the checkout counter
 
 ![SEEZY Robot Hero Shot](docs/images/hero_shot.png)
 <p align="center">

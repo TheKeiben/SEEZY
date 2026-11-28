@@ -93,3 +93,7 @@ The system enforces strict cross-mode safety locks via a three-tier state machin
 | **`[E]`** | Instant Motor Brake | MANUAL |
 | **`[F]`** | Freeze / Resume (Saves active Nav2 coordinates and pauses motion) | ANY |
 | **`[SPACE] / [H]`** | Emergency Halt (1st Press - instantly cuts motors and kills Nav2 paths) <br> Reset System (2nd Press - clears the queue and resets to IDLE/MANUAL) | ANY |
+
+## Team
+
+[Ben Keinan](https://github.com/TheKeiben) · [Yovel Ben Hamo](https://github.com/Sofo222)
